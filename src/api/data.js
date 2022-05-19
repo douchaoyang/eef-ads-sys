@@ -10,7 +10,7 @@ export function getData() {
 export function setData(data) {
   return request({
     method: 'post',
-    url: 'https://admin.eefous.com/qiniu/data',
+    url: 'https://admin.eefocus.com/api/eef-ads-sys/update',
     data: {data: data}
   })
 }
