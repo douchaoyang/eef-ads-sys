@@ -2,7 +2,7 @@ import request from '@/utils/request'
 
 export function getData() {
   return request({
-    url: `http://qiniu.douchaoyang.com/test/data.json?t=${(new Date()).getTime()}`,
+    url: `https://eefocus-static.eefcdn.com/promotion/module/data/data.json?t=${(new Date()).getTime()}`,
     method: 'get'
   })
 }
@@ -10,7 +10,7 @@ export function getData() {
 export function setData(data) {
   return request({
     method: 'post',
-    url: 'http://127.0.0.1:8081/qiniu/data',
+    url: 'https://admin.eefous.com/qiniu/data',
     data: {data: data}
   })
 }
