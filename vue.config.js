@@ -13,7 +13,7 @@ const name = defaultSettings.title || '简单广告系统' // page title
 // For example, Mac: sudo npm run
 // You can change the port by the following methods:
 // port = 8000 npm run dev OR npm run dev --port = 8000
-const port = process.env.port || process.env.npm_config_port || 8000 // dev port
+const port = process.env.port || process.env.npm_config_port || 9527 // dev port
 
 // All configuration item explanations can be find in https://cli.vuejs.org/config/
 module.exports = {

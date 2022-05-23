@@ -9,8 +9,8 @@ export function getData() {
 
 export function setData(data) {
   return request({
-    method: 'post',
-    url: 'https://admin.eefocus.com/api/eef-ads-sys/update',
+    method: 'get',
+    url: 'https://admin.eefocus.com/api/current-user',
     data: {data: data}
   })
 }
