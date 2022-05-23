@@ -123,6 +123,13 @@ export const constantRoutes = [
         component: () => import('@/views/banner/edit'),
         hidden: true,
         meta: { title: '编辑广告' }
+      },
+      {
+        path: 'add',
+        name: 'BannerAdd',
+        component: () => import('@/views/banner/add'),
+        hidden: true,
+        meta: { title: '新增广告' }
       }
     ]
   },

@@ -13,7 +13,7 @@
         <el-input placeholder="标识" clearable v-model="param.slug" class="box">
         </el-input>
         <el-select
-          clearable=""
+          clearable
           v-model="param.type"
           placeholder="类型"
           class="box"
@@ -46,45 +46,49 @@
       <el-table-column align="center" prop="slug" label="标识" />
       <el-table-column align="center" prop="width" label="宽度" />
       <el-table-column align="center" prop="height" label="高度" />
-      <el-table-column align="center" label="类型">
-        <template slot-scope="scope">
-          <span>{{ scope.row.type || "未定义" }}</span>
-        </template>
-      </el-table-column>
+      <el-table-column align="center" prop="type" label="类型" />
       <el-table-column align="center" label="Cookie">
         <template slot-scope="scope">
           <span>{{
-            (scope.row.settings && scope.row.settings.cookie_pattern) ||
-            "未定义"
+            scope.row.type == "banner"
+              ? "无"
+              : scope.row.settings.cookie_pattern
           }}</span>
         </template>
       </el-table-column>
       <el-table-column align="center" label="冷却时长">
         <template slot-scope="scope">
           <span>{{
-            (scope.row.settings && scope.row.settings.refractory_period) || 0
+            scope.row.type == "banner"
+              ? "无"
+              : scope.row.settings.refractory_period
           }}</span>
         </template>
       </el-table-column>
       <el-table-column align="center" label="延迟打开">
         <template slot-scope="scope">
           <span>{{
-            (scope.row.settings && scope.row.settings.open_after) || 0
+            scope.row.type == "banner"
+              ? "无"
+              : scope.row.settings.open_after
           }}</span>
         </template>
       </el-table-column>
       <el-table-column align="center" label="定时关闭">
         <template slot-scope="scope">
           <span>{{
-            (scope.row.settings && scope.row.settings.close_after) || 0
+            scope.row.type == "banner"
+              ? "无"
+              : scope.row.settings.close_after
           }}</span>
         </template>
       </el-table-column>
       <el-table-column align="center" label="展示位置">
         <template slot-scope="scope">
           <span>{{
-            (scope.row.settings && scope.row.settings.position) ||
-            "center center"
+            scope.row.type == "banner"
+              ? "无"
+              : scope.row.settings.position
           }}</span>
         </template>
       </el-table-column>

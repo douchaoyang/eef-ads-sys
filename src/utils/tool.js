@@ -1,5 +1,9 @@
 export const size = 3;
 
+function typeOf(obj) {
+  return obj == null ? String(obj).toLowerCase() : Object.prototype.toString.call(obj).replace(/\[object\s+(\w+)\]/i, "$1").toLowerCase() || "object";
+}
+
 export function pager(a, p) {
   return p > Math.ceil(a.length / size) ? [] : a.slice((p - 1) * size, p * size)
 }
@@ -10,13 +14,20 @@ export function filter(a, o) {
     let check = true;
     for(let i in o) {
       if(v[i]) {
-        if(typeof v[i] == 'string' && v[i].indexOf(o[i]) == -1) {
-          return false;
+        if(typeOf(v[i]) == 'string' && v[i].indexOf(o[i]) == -1) {
+          console.log(v[i])
+          check = false;
+        }
+        if(typeOf(v[i]) == 'object' && (o[i] === false || o[i] === 'false')) {
+          check = false
+        }
+        if(typeOf(v[i]) == 'array' && o[i] && v[i].indexOf(o[i]) == -1) {
+          check = false;
         }
       }
       else {
         if(o[i]) {
-          return false;
+          check = false;
         }
       }
     }
@@ -34,4 +45,12 @@ export function exist(a, k, v) {
     }
   }
   return false;
+}
+
+export function getSlugs(store, key) {
+  let result = [];
+  store.getters.data[key].map((v) => {
+    result.push(v.slug);
+  });
+  return result;
 }

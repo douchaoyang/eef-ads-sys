@@ -12,11 +12,50 @@
         <span>搜索?</span>
         <el-input placeholder="标识" clearable v-model="param.slug" class="box">
         </el-input>
-        <span>视频?</span>
-        <el-switch
+        <el-select
+          placeholder="类型"
           v-model="param.video"
+          clearable
+          class="box"
         >
-        </el-switch>
+          <el-option
+            v-for="item in type"
+            :key="item.label"
+            :label="item.label"
+            :value="item.value"
+          >
+          </el-option>
+        </el-select>
+        <el-select
+          placeholder="活动"
+          v-model="param.campaign"
+          clearable
+          filterable
+          class="box"
+        >
+          <el-option
+            v-for="item in campaigns"
+            :key="item"
+            :label="item"
+            :value="item"
+          >
+          </el-option>
+        </el-select>
+        <el-select
+          placeholder="广告位"
+          v-model="param.zones"
+          clearable
+          filterable
+          class="box"
+        >
+          <el-option
+            v-for="item in zones"
+            :key="item"
+            :label="item"
+            :value="item"
+          >
+          </el-option>
+        </el-select>
       </div>
       <div class="right">
         <el-button
@@ -42,21 +81,9 @@
             :src="scope.row.image"
             fit="contain"
             :preview-src-list="[scope.row.image]"
+            v-if="!scope.row.video"
           ></el-image>
-        </template>
-      </el-table-column>
-      <el-table-column align="center" prop="url" label="链接">
-        <template slot-scope="scope">
-          <el-link type="primary" :href="scope.row.url" target="_blank">{{
-            scope.row.title
-          }}</el-link>
-        </template>
-      </el-table-column>
-      <el-table-column align="center" prop="weight" label="权重" />
-      <el-table-column align="center" prop="campaign" label="活动" />
-      <el-table-column align="center" prop="zones" label="广告位">
-        <template slot-scope="scope">
-          <span v-html="'[' + scope.row.zones.join(']<br>[') + ']'"></span>
+          <span v-else>无</span>
         </template>
       </el-table-column>
       <el-table-column align="center" prop="video" label="视频">
@@ -64,13 +91,21 @@
           <el-link
             v-if="scope.row.video"
             type="primary"
-            :href="scope.row.video.sources[0].src"
-            target="_blank"
+            @click="play(scope.row.video.sources[0].src)"
             >预览</el-link
           >
           <span v-else>无</span>
         </template>
       </el-table-column>
+      <el-table-column align="center" prop="title" label="标题" />
+      <el-table-column align="center" prop="url" label="链接" />
+      <el-table-column align="center" prop="campaign" label="活动" />
+      <el-table-column align="center" prop="zones" label="广告位">
+        <template slot-scope="scope">
+          <span v-html="'[' + scope.row.zones.join(']<br>[') + ']'"></span>
+        </template>
+      </el-table-column>
+      <el-table-column align="center" prop="weight" label="权重" />
       <el-table-column align="center" fixed="right" label="操作" width="100">
         <template slot-scope="scope">
           <el-button type="text" @click="handler(scope.row)">编辑</el-button>
@@ -88,14 +123,25 @@
       >
       </el-pagination>
     </div>
+    <el-dialog
+      :visible.sync="dialogVisible"
+      width="720px"
+      :destroy-on-close="true"
+      custom-class="video-dialog"
+    >
+      <video controls preload class="video" ref="video" :src="src"></video>
+    </el-dialog>
   </div>
 </template>
 
 <script>
-import { size, pager, filter } from "@/utils/tool";
+import { size, pager, filter, getSlugs } from "@/utils/tool";
+import { get } from "js-cookie";
 export default {
   data() {
     return {
+      dialogVisible: false,
+      src: "",
       banners: [],
       all: [],
       pagerVisible: false,
@@ -103,9 +149,16 @@ export default {
       current: 1,
       param: {
         slug: "",
-        video: false,
+        video: "",
+        campaign: "",
+        zones: "",
       },
-      type: ["image", "video"],
+      type: [
+        { label: "图片", value: false },
+        { label: "视频", value: true },
+      ],
+      campaigns: [],
+      zones: [],
     };
   },
   methods: {
@@ -128,7 +181,7 @@ export default {
       this.pager(v);
     },
     search() {
-      if (!this.param.slug) {
+      if (!this.param.slug && !this.param.campaign && !this.param.zones) {
         this.reset();
       }
       this.all = filter(this.$store.getters.data.banners, this.param);
@@ -139,9 +192,19 @@ export default {
       this.all = this.$store.getters.data.banners;
       this.pager(1);
     },
+    play(url) {
+      console.log(url);
+      this.dialogVisible = true;
+      this.src = url;
+      this.$nextTick(() => {
+        this.$refs.video.play();
+      });
+    },
   },
   created() {
     this.reset();
+    this.campaigns = getSlugs(this.$store, "campaigns");
+    this.zones = getSlugs(this.$store, "zones");
   },
 };
 </script>
@@ -180,5 +243,9 @@ export default {
 .img {
   width: 60px;
   height: 60px;
+}
+.video {
+  display: block;
+  width: 720px;
 }
 </style>

@@ -1,34 +1,59 @@
 <template>
   <div class="app-container">
     <el-form
-      ref="campaignAdd"
-      :model="campaign"
+      ref="bannerAdd"
+      :model="banner"
       :rules="rules"
       label-width="100px"
       class="form"
     >
+      <el-form-item label="">
+        <el-radio-group v-model="type">
+          <el-radio-button label="图片"></el-radio-button>
+          <el-radio-button label="视频"></el-radio-button>
+        </el-radio-group>
+      </el-form-item>
+      <el-form-item label="图片/视频" prop="thing">
+        <el-input v-model="banner.thing"></el-input>
+      </el-form-item>
       <el-form-item label="标识" prop="slug">
-        <el-input v-model="campaign.slug"></el-input>
+        <el-input v-model="banner.slug"></el-input>
       </el-form-item>
-      <el-form-item label="开始时间" prop="activate_time">
-        <el-date-picker
-          v-model="campaign.activate_time"
-          type="datetime"
-          placeholder="选择日期时间"
-          format="yyyy/MM/dd HH:mm:ss"
-          value-format="yyyy/MM/dd HH:mm:ss"
-        >
-        </el-date-picker>
+      <el-form-item label="标题" prop="title">
+        <el-input v-model="banner.title"></el-input>
       </el-form-item>
-      <el-form-item label="结束时间" prop="expire_time">
-        <el-date-picker
-          v-model="campaign.expire_time"
-          type="datetime"
-          placeholder="选择日期时间"
-          format="yyyy/MM/dd HH:mm:ss"
-          value-format="yyyy/MM/dd HH:mm:ss"
+      <el-form-item label="链接" prop="url">
+        <el-input v-model="banner.url"></el-input>
+      </el-form-item>
+      <el-form-item label="权重" prop="weight">
+        <el-input v-model="banner.weight"></el-input>
+      </el-form-item>
+      <el-form-item label="活动" prop="campaign">
+        <el-select placeholder="活动" v-model="banner.campaign" filterable>
+          <el-option
+            v-for="item in campaigns"
+            :key="item"
+            :label="item"
+            :value="item"
+          >
+          </el-option>
+        </el-select>
+      </el-form-item>
+      <el-form-item label="广告位" prop="zones">
+        <el-select
+          placeholder="广告位"
+          v-model="banner.zones"
+          filterable
+          multiple
         >
-        </el-date-picker>
+          <el-option
+            v-for="item in zones"
+            :key="item"
+            :label="item"
+            :value="item"
+          >
+          </el-option>
+        </el-select>
       </el-form-item>
       <el-form-item>
         <el-button type="primary" plain class="submit" @click="handler"
@@ -41,12 +66,25 @@
 
 <script>
 import { Message } from "element-ui";
-import { exist } from "@/utils/tool";
+import { exist, getSlugs } from "@/utils/tool";
 export default {
   data() {
     return {
-      campaign: {},
+      type: "图片",
+      campaigns: [],
+      zones: [],
+      banner: {
+        weight: 1,
+        zones: [],
+      },
       rules: {
+        thing: [
+          {
+            required: true,
+            message: "请填写图片或视频地址",
+            trigger: "blur",
+          },
+        ],
         slug: [
           {
             required: true,
@@ -54,18 +92,39 @@ export default {
             trigger: "blur",
           },
         ],
-        activate_time: [
+        title: [
           {
             required: true,
-            message: "请选择日期时间",
+            message: "请填写标题",
+            trigger: "blur",
+          },
+        ],
+        weight: [
+          {
+            required: true,
+            message: "请填写权重",
+            trigger: "blur",
+          },
+        ],
+        campaign: [
+          {
+            required: true,
+            message: "请选择活动",
             trigger: "change",
           },
         ],
-        expire_time: [
+        zones: [
           {
             required: true,
-            message: "请选择日期时间",
+            message: "请选择广告位",
             trigger: "change",
+          },
+        ],
+        url: [
+          {
+            required: true,
+            message: "请填写跳转链接",
+            trigger: "blur",
           },
         ],
       },
@@ -73,23 +132,55 @@ export default {
   },
   methods: {
     handler() {
-      this.$refs["campaignAdd"].validate((valid) => {
+      this.$refs["bannerAdd"].validate((valid) => {
         if (valid) {
-          if(exist(this.$store.getters.data.campaigns, 'slug', this.campaign.slug)) {
-            Message.error("已存在的活动！");
-            return false;
+          if (this.type == "图片") {
+            this.$store.dispatch("data/addBanner", {
+              image: this.banner.thing,
+              url: this.banner.url,
+              title: this.banner.title,
+              slug: this.banner.slug,
+              weight: this.banner.weight,
+              campaign: this.banner.campaign,
+              zones: this.banner.zones,
+            });
           }
-          this.$store.dispatch("data/addCampaign", this.campaign);
-          console.log(this.$store.getters.data);
+          if (this.type == "视频") {
+            this.$store.dispatch("data/addBanner", {
+              image: this.banner.thing,
+              url: this.banner.url,
+              title: this.banner.title,
+              slug: this.banner.slug,
+              weight: this.banner.weight,
+              campaign: this.banner.campaign,
+              zones: this.banner.zones,
+              video: {
+                muted: true, 
+                loop: true, 
+                autoplay: true,
+                controlslist: "nodownload nofullscreen noremoteplayback",
+                disablepictureinpicture: true,
+                sources: [
+                  {
+                    src: this.banner.thing,
+                    type: "video/mp4",
+                  },
+                ],
+              }
+            });
+          }
           Message.success("提交成功！");
-          this.$router.push({ path: "/campaign/index" });
+          this.$router.push({ path: "/banner/index" });
         } else {
           return false;
         }
       });
     },
   },
-  created() {},
+  created() {
+    this.campaigns = getSlugs(this.$store, "campaigns");
+    this.zones = getSlugs(this.$store, "zones");
+  },
 };
 </script>
 

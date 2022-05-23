@@ -9,8 +9,8 @@ export function getData() {
 
 export function setData(data) {
   return request({
-    method: 'get',
-    url: 'https://admin.eefocus.com/api/current-user',
+    method: 'post',
+    url: 'https://www.cirmall.com/api/eef_ads_sys/update',
     data: {data: data}
   })
 }

@@ -31,44 +31,53 @@
           <template slot="append">px</template>
         </el-input>
       </el-form-item>
-      <el-form-item label="位置" prop="position">
-        <el-select v-model="vertical" style="margin-right: 20px; width: 160px">
-          <el-option
-            v-for="item in vOps"
-            :key="item"
-            :label="item"
-            :value="item"
+      <template v-if="zone.type != 'banner'">
+        <el-form-item label="位置" prop="position">
+          <el-select
+            v-model="zone.vertical"
+            style="margin-right: 20px; width: 160px"
           >
-          </el-option>
-        </el-select>
-        <el-select v-model="horizental" style="width: 160px">
-          <el-option
-            v-for="item in hOps"
-            :key="item"
-            :label="item"
-            :value="item"
-          >
-          </el-option>
-        </el-select>
-      </el-form-item>
-      <el-form-item label="Cookie" prop="slug">
-        <el-input clearable v-model="cookie"></el-input>
-      </el-form-item>
-      <el-form-item label="冷却时长" prop="refractory_period" class="form-item">
-        <el-input v-model="period">
-          <template slot="append">秒</template>
-        </el-input>
-      </el-form-item>
-      <el-form-item label="延迟打开" prop="open_after" class="form-item">
-        <el-input v-model="open">
-          <template slot="append">秒</template>
-        </el-input>
-      </el-form-item>
-      <el-form-item label="定时关闭" prop="close_after" class="form-item">
-        <el-input v-model="close">
-          <template slot="append">秒</template>
-        </el-input>
-      </el-form-item>
+            <el-option
+              v-for="item in vOps"
+              :key="item"
+              :label="item"
+              :value="item"
+            >
+            </el-option>
+          </el-select>
+          <el-select v-model="zone.horizental" style="width: 160px">
+            <el-option
+              v-for="item in hOps"
+              :key="item"
+              :label="item"
+              :value="item"
+            >
+            </el-option>
+          </el-select>
+        </el-form-item>
+        <el-form-item label="Cookie" prop="cookie">
+          <el-input clearable v-model="zone.cookie"></el-input>
+        </el-form-item>
+        <el-form-item
+          label="冷却时长"
+          prop="refractory_period"
+          class="form-item"
+        >
+          <el-input v-model="zone.period">
+            <template slot="append">秒</template>
+          </el-input>
+        </el-form-item>
+        <el-form-item label="延迟打开" prop="open_after" class="form-item">
+          <el-input v-model="zone.open">
+            <template slot="append">秒</template>
+          </el-input>
+        </el-form-item>
+        <el-form-item label="定时关闭" prop="close_after" class="form-item">
+          <el-input v-model="zone.close">
+            <template slot="append">秒</template>
+          </el-input>
+        </el-form-item>
+      </template>
       <el-form-item>
         <el-button type="primary" plain class="submit" @click="handler"
           >提交</el-button
@@ -84,17 +93,25 @@ export default {
   data() {
     return {
       id: 0,
-      zone: {},
+      zone: {
+        vertical: "",
+        horizental: "",
+        cookie: "eef_billboard",
+        period: 0,
+        open: 0,
+        close: 0,
+      },
       vOps: ["top", "center", "bottom"],
-      vertical: "",
       hOps: ["left", "center", "right"],
-      horizental: "",
-      cookie: "",
-      period: 0,
-      open: 0,
-      close: 0,
       type: ["banner", "billboard"],
       rules: {
+        slug: [
+          {
+            required: true,
+            message: "请选择类型",
+            trigger: "change",
+          },
+        ],
         type: [
           {
             required: true,
@@ -115,7 +132,7 @@ export default {
             message: "请填写高度",
             trigger: "blur",
           },
-        ],
+        ]
       },
     };
   },
@@ -131,11 +148,11 @@ export default {
               height: this.zone.height,
               type: this.zone.type,
               settings: {
-                refractory_period: this.period,
-                cookie_pattern: this.cookie,
-                close_after: this.close,
-                open_after: this.open,
-                position: `${this.vertical} ${this.horizental}`,
+                refractory_period: this.zone.period || 0,
+                cookie_pattern: this.zone.cookie || `eef_${this.zone.type}`,
+                close_after: this.zone.close || 0,
+                open_after: this.zone.open || 0,
+                position: `${this.zone.vertical} ${this.zone.horizental}`,
               },
             },
           });
@@ -149,24 +166,21 @@ export default {
   },
   created() {
     this.id = this.$route.params.id;
-    this.zone = JSON.parse(
+    let zone = JSON.parse(
       JSON.stringify(this.$store.getters.data.zones[this.id])
     );
-    if (this.zone.settings) {
-      this.vertical = this.zone.settings.position
-        ? this.zone.settings.position.split(" ")[0]
-        : "center";
-      this.horizental = this.zone.settings.position
-        ? this.zone.settings.position.split(" ")[1]
-        : "center";
-      this.cookie = this.zone.settings.cookie_pattern || "";
-      this.period = this.zone.settings.refractory_period || 0;
-      this.open = this.zone.settings.open_after || 0;
-      this.close = this.zone.settings.close_after || 0;
-    } else {
-      this.vertical = "center";
-      this.horizental = "center";
-    }
+    this.zone = {
+      slug: zone.slug,
+      width: zone.width,
+      height: zone.height,
+      type: zone.type,
+      period: zone.settings.refractory_period || 0,
+      cookie: zone.settings.cookie_pattern || "eef_billboard",
+      close: zone.settings.close_after || 0,
+      open: zone.settings.open_after || 0,
+      vertical: zone.settings.position.split(" ")[0],
+      horizental: zone.settings.position.split(" ")[1],
+    };
   },
 };
 </script>

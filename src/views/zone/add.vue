@@ -31,44 +31,53 @@
           <template slot="append">px</template>
         </el-input>
       </el-form-item>
-      <el-form-item label="位置" prop="position">
-        <el-select v-model="vertical" style="margin-right: 20px; width: 160px">
-          <el-option
-            v-for="item in vOps"
-            :key="item"
-            :label="item"
-            :value="item"
+      <template v-if="zone.type != 'banner'">
+        <el-form-item label="位置" prop="position">
+          <el-select
+            v-model="zone.vertical"
+            style="margin-right: 20px; width: 160px"
           >
-          </el-option>
-        </el-select>
-        <el-select v-model="horizental" style="width: 160px">
-          <el-option
-            v-for="item in hOps"
-            :key="item"
-            :label="item"
-            :value="item"
-          >
-          </el-option>
-        </el-select>
-      </el-form-item>
-      <el-form-item label="Cookie" prop="cookie_pattern">
-        <el-input v-model="zone.settings.cookie_pattern"></el-input>
-      </el-form-item>
-      <el-form-item label="冷却时长" prop="refractory_period" class="form-item">
-        <el-input v-model="zone.settings.refractory_period">
-          <template slot="append">秒</template>
-        </el-input>
-      </el-form-item>
-      <el-form-item label="延迟打开" prop="open_after" class="form-item">
-        <el-input v-model="zone.settings.open_after">
-          <template slot="append">秒</template>
-        </el-input>
-      </el-form-item>
-      <el-form-item label="定时关闭" prop="close_after" class="form-item">
-        <el-input v-model="zone.settings.close_after">
-          <template slot="append">秒</template>
-        </el-input>
-      </el-form-item>
+            <el-option
+              v-for="item in vOps"
+              :key="item"
+              :label="item"
+              :value="item"
+            >
+            </el-option>
+          </el-select>
+          <el-select v-model="zone.horizental" style="width: 160px">
+            <el-option
+              v-for="item in hOps"
+              :key="item"
+              :label="item"
+              :value="item"
+            >
+            </el-option>
+          </el-select>
+        </el-form-item>
+        <el-form-item label="Cookie" prop="cookie_pattern">
+          <el-input v-model="zone.cookie"></el-input>
+        </el-form-item>
+        <el-form-item
+          label="冷却时长"
+          prop="refractory_period"
+          class="form-item"
+        >
+          <el-input v-model="zone.period">
+            <template slot="append">秒</template>
+          </el-input>
+        </el-form-item>
+        <el-form-item label="延迟打开" prop="open_after" class="form-item">
+          <el-input v-model="zone.open">
+            <template slot="append">秒</template>
+          </el-input>
+        </el-form-item>
+        <el-form-item label="定时关闭" prop="close_after" class="form-item">
+          <el-input v-model="zone.close">
+            <template slot="append">秒</template>
+          </el-input>
+        </el-form-item>
+      </template>
       <el-form-item>
         <el-button type="primary" plain class="submit" @click="handler"
           >提交</el-button
@@ -89,18 +98,15 @@ export default {
         width: "",
         height: "",
         type: "banner",
-        settings: {
-          refractory_period: 0,
-          cookie_pattern: "",
-          close_after: 0,
-          open_after: 0,
-          position: "center center",
-        },
+        vertical: "center",
+        horizental: "center",
+        cookie: "",
+        period: 0,
+        open: 0,
+        close: 0,
       },
       vOps: ["top", "center", "bottom"],
-      vertical: "center",
       hOps: ["left", "center", "right"],
-      horizental: "center",
       type: ["banner", "billboard"],
       rules: {
         slug: [
@@ -138,12 +144,23 @@ export default {
     handler() {
       this.$refs["zoneAdd"].validate((valid) => {
         if (valid) {
-          if(exist(this.$store.getters.data.zones, 'slug', this.zone.slug)) {
+          if (exist(this.$store.getters.data.zones, "slug", this.zone.slug)) {
             Message.error("已存在的广告位！");
             return false;
           }
-          this.zone.settings.position = `${this.vertical} ${this.horizental}`;
-          this.$store.dispatch("data/addZone", this.zone);
+          this.$store.dispatch("data/addZone", {
+            slug: this.zone.slug,
+            width: this.zone.width,
+            height: this.zone.height,
+            type: this.zone.type,
+            settings: {
+              refractory_period: this.zone.period || 0,
+              cookie_pattern: this.zone.cookie || `eef_${this.zone.type}`,
+              close_after: this.zone.close || 0,
+              open_after: this.zone.open || 0,
+              position: `${this.zone.vertical} ${this.zone.horizental}`,
+            },
+          });
           Message.success("提交成功！");
           this.$router.push({ path: "/zone/index" });
         } else {
@@ -152,10 +169,7 @@ export default {
       });
     },
   },
-  created() {
-    this.vertical = this.zone.settings.position.split(" ")[0];
-    this.horizental = this.zone.settings.position.split(" ")[1];
-  },
+  created() {},
 };
 </script>
 
