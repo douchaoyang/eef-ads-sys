@@ -167,8 +167,8 @@ export default {
       this.banners = pager(this.all, p);
     },
     handler(row) {
-      for (let i = 0; i < this.banners.length; i++) {
-        if (row.slug == this.banners[i].slug) {
+      for (let i = 0; i < this.$store.getters.data.banners.length; i++) {
+        if (row == this.$store.getters.data.banners[i]) {
           this.$router.push({ path: `/banner/edit/${i}` });
           break;
         }

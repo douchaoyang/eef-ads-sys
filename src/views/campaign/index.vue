@@ -72,8 +72,8 @@ export default {
       );
     },
     handler(row) {
-      for (let i = 0; i < this.campaigns.length; i++) {
-        if (row.slug == this.campaigns[i].slug) {
+      for (let i = 0; i < this.$store.getters.data.campaigns.length; i++) {
+        if (row.slug == this.$store.getters.data.campaigns[i].slug) {
           this.$router.push({ path: `/campaign/edit/${i}` });
           break;
         }

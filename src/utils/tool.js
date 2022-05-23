@@ -1,4 +1,4 @@
-export const size = 3;
+export const size = 10;
 
 function typeOf(obj) {
   return obj == null ? String(obj).toLowerCase() : Object.prototype.toString.call(obj).replace(/\[object\s+(\w+)\]/i, "$1").toLowerCase() || "object";

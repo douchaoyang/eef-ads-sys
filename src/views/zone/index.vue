@@ -135,8 +135,8 @@ export default {
       this.zones = pager(this.all, p);
     },
     handler(row) {
-      for (let i = 0; i < this.zones.length; i++) {
-        if (row.slug == this.zones[i].slug) {
+      for (let i = 0; i < this.$store.getters.data.zones.length; i++) {
+        if (row.slug == this.$store.getters.data.zones[i].slug) {
           this.$router.push({ path: `/zone/edit/${i}` });
           break;
         }
