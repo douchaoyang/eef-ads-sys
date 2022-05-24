@@ -193,7 +193,6 @@ export default {
       this.pager(1);
     },
     play(url) {
-      console.log(url);
       this.dialogVisible = true;
       this.src = url;
       this.$nextTick(() => {

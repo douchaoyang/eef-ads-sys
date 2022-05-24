@@ -15,7 +15,6 @@ export function filter(a, o) {
     for(let i in o) {
       if(v[i]) {
         if(typeOf(v[i]) == 'string' && v[i].indexOf(o[i]) == -1) {
-          console.log(v[i])
           check = false;
         }
         if(typeOf(v[i]) == 'object' && (o[i] === false || o[i] === 'false')) {

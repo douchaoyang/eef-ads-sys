@@ -80,7 +80,6 @@ export default {
             return false;
           }
           this.$store.dispatch("data/addCampaign", this.campaign);
-          console.log(this.$store.getters.data);
           Message.success("提交成功！");
           this.$router.push({ path: "/campaign/index" });
         } else {
